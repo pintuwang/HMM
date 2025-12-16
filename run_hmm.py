@@ -33,7 +33,7 @@ def train_and_predict_hmm(df):
     X = df['Log_Return'].values.reshape(-1, 1)
 
     # Initialize the HMM (Gaussian for simplicity, upgrade to Student's t later)
-    model = hmm.GaussianHMM(n_components=N_COMPONENTS, covariance_type="diag", n_iter=100)
+    model = hmm.GaussianHMM(n_components=N_COMPONENTS, covariance_type="diag", n_iter=500)
     
     # 1. Initialize parameters based on volatility (variance)
     initial_covars = [[0.0002], [0.00005]] # Guess: High variance (Panic) and Low variance (Calm)
