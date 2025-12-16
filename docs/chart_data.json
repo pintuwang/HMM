@@ -1,0 +1,21 @@
+{
+    "dates": [
+        "2025-12-16"
+    ],
+    "p_panic": [
+        10.0
+    ],
+    "vix_close": [
+        15.0
+    ],
+    "vix_spread": [
+        2.5
+    ],
+    "last_reading": {
+        "date": "2025-12-16",
+        "vix_close": 15.0,
+        "vix_spread": 2.5,
+        "spread_status": "Contango (Healthy)",
+        "p_panic": 10.0
+    }
+}
