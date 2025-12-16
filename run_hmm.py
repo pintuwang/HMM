@@ -137,22 +137,25 @@ def update_historical_data():
         
     last_spread = df_chart.iloc[-1]['VIX_Spread']
     spread_status = "Backwardation (Acute Stress)" if last_spread < 0 else "Contango (Healthy)"
-    
+
     # Create the JSON structure for Chart.js
     chart_json = {
         'dates': output_df['Date'].tolist(),
         'p_panic': output_df['P_Panic'].tolist(),
         'vix_close': output_df['VIX_Close'].tolist(),
-        'vix_spread': output_df['VIX_Spread'].tolist(),
+        'vix_spread': output_df['VIX_Spread'].tolist(),  # <-- THIS MUST BE PRESENT
         'last_reading': {
             'date': output_df.iloc[-1]['Date'],
             'vix_close': output_df.iloc[-1]['VIX_Close'],
-            'vix_spread': float(output_df.iloc[-1]['VIX_Spread']), # Convert to float explicitly
-            'spread_status': spread_status,
-            'p_panic': float(output_df.iloc[-1]['P_Panic']), # Convert to float explicitly
+            'vix_spread': float(output_df.iloc[-1]['VIX_Spread']), # <-- THIS MUST BE PRESENT
+            'spread_status': spread_status, # <-- THIS MUST BE PRESENT
+            'p_panic': float(output_df.iloc[-1]['P_Panic']),
+            # The JSON you provided had 'Return', 'P_Calm', 'Most_Likely_Regime'
+            # These are fine to keep, but they are not used by the HTML summary box.
         }
     }
-
+    
+   
     # Ensure the docs directory exists
     os.makedirs(os.path.dirname(CHART_DATA_FILE), exist_ok=True)
     
