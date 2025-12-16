@@ -36,17 +36,12 @@ def train_and_predict_hmm(df):
     model = hmm.GaussianHMM(n_components=N_COMPONENTS, covariance_type="diag", n_iter=500)
     
    
-    # --- REVISED HMM INITIALIZATION (run_hmm.py) ---
-    # 1. Initialize parameters (Means and Covariances) to enforce state separation
+   # 1. Initialize parameters (Means and Covariances) to enforce state separation
     # State 0 (Calm): Positive Mean, Low Variance
-    # State 1 (Panic): Negative Mean, High Variance
+    # State 1 (Panic): Negative Mean, High Variance (10x difference)
     
-    # Enforce means (mus) and covariances (covars) to provide a better starting point
     model.means_ = np.array([[0.0003], [-0.0005]])
-    model.covars_ = np.array([[0.00005], [0.0005]]) # 10x difference in variance
-    
-    # Note: init_params='c' is still used, which includes 'c' for covariance
-    # The 'hmmlearn' warning about 'covars_' being overwritten is fine since we set it here.
+    model.covars_ = np.array([[0.00005], [0.0005]])
     
       
     # 2. Train the model
