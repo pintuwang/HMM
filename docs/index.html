@@ -64,6 +64,13 @@
                 return;
             }
 
+            // **********************************************
+            // ************ THE FINAL FIX: DISPLAY **********
+            // **********************************************
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('data-display').style.display = 'block';
+            // **********************************************
+
             // --- Update Summary Box ---
             const lastReading = data.last_reading || {};
             const vixClose = (lastReading.vix_close || 0.0).toFixed(2);
@@ -201,6 +208,10 @@
             document.getElementById('vix-term-structure').textContent = 'N/A (0.00)';
             document.getElementById('hmm-panic-probability').textContent = '0.0%';
             document.getElementById('hmm-check-regime').innerHTML = `Loading error: Cannot find data file at ${HMM_URL}`;
+            
+            // Still hide the loading message to show the error state:
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('data-display').style.display = 'block';
         });
 });
 // End of the main <script> tag logic
