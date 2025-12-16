@@ -1,5 +1,4 @@
 pandas
 numpy
 yfinance
-scipy
-pyhsmm
+hmmlearn
