@@ -29,19 +29,24 @@ def get_data(symbol, start_date):
 def train_and_predict_hmm(df):
     """Trains the HMM and calculates the probability of the Panic Regime."""
     
-    # Use Log Returns as the observable input
-    X = df['Log_Return'].values.reshape(-1, 1)
+    # X now includes Log_Return and the VIX_Close price
+    X = df[['Log_Return', 'VIX_Close']].values
 
     # Initialize the HMM (Gaussian for simplicity, upgrade to Student's t later)
     model = hmm.GaussianHMM(n_components=N_COMPONENTS, covariance_type="diag", n_iter=500)
     
    
-   # 1. Initialize parameters (Means and Covariances) to enforce state separation
-    # State 0 (Calm): Positive Mean, Low Variance
-    # State 1 (Panic): Negative Mean, High Variance (10x difference)
+   # 1. Initialize means for two features: [Log_Return, VIX_Close]
+    # Calm State (0): Positive return, Low VIX (e.g., 14)
+    # Panic State (1): Negative return, High VIX (e.g., 30)
+    model.means_ = np.array([[0.0003, 14.0], 
+                             [-0.0005, 30.0]])
     
-    model.means_ = np.array([[0.0003], [-0.0005]])
-    model.covars_ = np.array([[0.00005], [0.0005]])
+    # 2. Initialize diagonal covariances for two features: [Returns Variance, VIX Variance]
+    # Calm State (0): Very low return variance, Low VIX variance (VIX moves little)
+    # Panic State (1): High return variance, High VIX variance (VIX moves a lot)
+    model.covars_ = np.array([[0.00005, 2.0], 
+                              [0.0005, 20.0]])
     
       
     # 2. Train the model
