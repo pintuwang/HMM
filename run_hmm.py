@@ -56,15 +56,26 @@ def train_and_predict_hmm(df):
         print(f"HMM fit failed: {e}. Skipping update.")
         return None
     
-    # 3. Predict the hidden states and probabilities
+   # --- REVISED PREDICTION AND INDEXING (run_hmm.py, around line 60-70) ---
+
+    # Get the probabilities of being in each state
     probabilities = model.predict_proba(X)
     
-    # 4. Identify the Panic State (The one with the higher variance)
-    panic_state_index = np.argmax(model.covars_.flatten())
+    # DETERMINE THE PANIC STATE INDEX:
+    # The Panic State is the one with the highest VIX mean (the second feature).
+    # Model means have the shape (2, 2) where the second column is the VIX mean.
     
-    # Get the last day's probability
+    # 1. Find the index (0 or 1) where the VIX mean is highest.
+    vix_means = model.means_[:, 1] # Extract the VIX means (second column)
+    panic_state_index = np.argmax(vix_means) # Index 0 or 1 that has the highest VIX
+    
+    # 2. Use the correct index for the output
     df['P_Panic'] = probabilities[:, panic_state_index]
     
+    # The remaining state is P_Calm
+    calm_state_index = 1 - panic_state_index
+    df['P_Calm'] = probabilities[:, calm_state_index]
+
     return df
 
 def update_historical_data():
