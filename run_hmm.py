@@ -117,22 +117,25 @@ def update_historical_data():
     # --- Prepare Data for Charting (JSON) ---
     
     # Filter for the last ~1 year for display
-    # We use a rough factor (0.7) to estimate trading days in a period
     display_days = int(CHART_PERIOD_DAYS * 0.7) 
     
     df_chart = df_with_hmm.tail(display_days)
     
-    # Prepare the output DataFrame
+    # Prepare the output DataFrame (Simplified for this check)
     output_df = pd.DataFrame({
         'Date': df_chart.index.strftime('%Y-%m-%d'),
-        # Note: We include the VIX_Spread for display alongside the VIX_Close
-        'VIX_Spread': df_chart['VIX_Spread'].values.flatten().round(2),
-        'VIX_Close': df_chart['VIX_Close'].values.flatten().round(2),
-        'P_Panic': df_chart['P_Panic'].values.flatten().round(4),
+        'VIX_Spread': df_chart['VIX_Spread'].round(2),
+        'VIX_Close': df_chart['VIX_Close'].round(2),
+        'P_Panic': df_chart['P_Panic'].round(4),
     })
-    
+
     # Calculate the VIX Spread value for the summary header
-    last_spread = output_df.iloc[-1]['VIX_Spread']
+    # Check if df_chart is not empty before accessing .iloc[-1]
+    if df_chart.empty:
+        print("Error: df_chart is empty. Cannot create JSON output.")
+        return
+        
+    last_spread = df_chart.iloc[-1]['VIX_Spread']
     spread_status = "Backwardation (Acute Stress)" if last_spread < 0 else "Contango (Healthy)"
     
     # Create the JSON structure for Chart.js
@@ -140,13 +143,13 @@ def update_historical_data():
         'dates': output_df['Date'].tolist(),
         'p_panic': output_df['P_Panic'].tolist(),
         'vix_close': output_df['VIX_Close'].tolist(),
-        'vix_spread': output_df['VIX_Spread'].tolist(), # New feature for display
+        'vix_spread': output_df['VIX_Spread'].tolist(),
         'last_reading': {
             'date': output_df.iloc[-1]['Date'],
             'vix_close': output_df.iloc[-1]['VIX_Close'],
-            'vix_spread': last_spread,
+            'vix_spread': float(output_df.iloc[-1]['VIX_Spread']), # Convert to float explicitly
             'spread_status': spread_status,
-            'p_panic': output_df.iloc[-1]['P_Panic'],
+            'p_panic': float(output_df.iloc[-1]['P_Panic']), # Convert to float explicitly
         }
     }
 
