@@ -93,17 +93,20 @@ def update_historical_data():
     # Get the last two years of data (training data minus recent date)
     df_new_history = df_with_hmm.tail(TRAINING_DAYS - 365)
     
+    # --- REVISED OUTPUT DATA PREPARATION (run_hmm.py) ---
+
     # Prepare the output row for the CSV structure
+    # Use .values.flatten() on the Series to ensure the array is 1-dimensional
     output_df = pd.DataFrame({
         'Date': df_new_history.index.strftime('%Y-%m-%d'),
-        'Return': df_new_history['Log_Return'].round(6),
-        'VIX_Close': df_new_history['VIX_Close'].round(2),
-        'P_Calm': (1 - df_new_history['P_Panic']).round(4),
-        'P_Panic': df_new_history['P_Panic'].round(4),
-        # Assuming Regime 2 is Panic
-        'Most_Likely_Regime': np.where(df_new_history['P_Panic'] > 0.5, 2, 1)
+        'Return': df_new_history['Log_Return'].values.flatten().round(6),
+        'VIX_Close': df_new_history['VIX_Close'].values.flatten().round(2),
+        'P_Calm': (1 - df_new_history['P_Panic']).values.flatten().round(4),
+        'P_Panic': df_new_history['P_Panic'].values.flatten().round(4),
+        'Most_Likely_Regime': np.where(df_new_history['P_Panic'] > 0.5, 2, 1).flatten()
     })
     
+       
     # --- Update the JSON File for Charting ---
     
     # Filter for the last 1 year for display
