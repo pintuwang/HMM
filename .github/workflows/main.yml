@@ -3,15 +3,16 @@ name: Daily HMM Update
 
 on:
   schedule:
-    # Run daily at 21:30 UTC (which is approximately 5:30 PM EST/NY market close)
+    # Run daily at 21:30 UTC 
     - cron: '30 21 * * *'
   workflow_dispatch: # Allows manual trigger
 
 jobs:
   update-hmm-data:
     runs-on: ubuntu-latest
-    permissions: # <--- ADD THIS BLOCK
+    permissions: 
       contents: write # Grants permission to push files back
+      
     steps:
       - uses: actions/checkout@v4
       
@@ -20,17 +21,17 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install dependencies (Assuming a requirements.txt exists)
         run: pip install -r requirements.txt
+        # ALTERNATIVE: run: pip install pandas numpy yfinance hmmlearn
 
       - name: Run HMM script and generate data
         run: python run_hmm.py
+        # The run_hmm.py script generates the docs/chart_data.json file
 
-      - name: Commit and push changes
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
-          # Add the generated JSON file
-          git add docs/chart_data.json
-          git commit -m "Automated HMM data update for ${{ github.event.release.tag_name || github.ref_name }}" || echo "No changes to commit"
-          git push
+      - name: Commit and push new JSON data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          # This action handles configuration, adding, committing, and pushing for you
+          file_pattern: 'docs/chart_data.json' 
+          commit_message: '🤖 Data: Automated HMM data update'
