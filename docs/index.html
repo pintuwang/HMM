@@ -43,10 +43,10 @@
         </div>
         
     </div>
-   
+    
     <script>
-        // Register annotation plugin globally
-     
+        // Note: Chart.register(ChartAnnotation) is removed as it causes a ReferenceError
+        // The script loads the annotation plugin from the CDN and uses it via the plugins block.
         
         function loadChartData() {
             // Use a cache-busting query parameter
@@ -64,7 +64,6 @@
                     const lastReading = data.last_reading;
     
                     // --- CRASH-PROOF VARIABLE INITIALIZATION ---
-                    // Using optional chaining (?.) and default values (|| 0)
                     const panicProb = ((lastReading?.p_panic || 0) * 100).toFixed(1);
                     const vixClose = (lastReading?.vix_close || 0).toFixed(1);
                     const vixSpread = (lastReading?.vix_spread || 0).toFixed(2);
@@ -147,6 +146,7 @@
                                     min: 10,
                                     max: 45 
                                 },
+                                // *** CORRECTION APPLIED HERE ***
                                 y_spread: { 
                                     type: 'linear',
                                     display: true,
@@ -155,8 +155,10 @@
                                     min: -5, 
                                     max: 5,
                                     grid: { drawOnChartArea: false },
-                                    offset: true 
+                                    // Use the stack property to force Chart.js to dedicate space for a second axis on the right
+                                    stack: 'spread-stack' 
                                 }
+                                // ******************************
                             },
                             plugins: {
                                 tooltip: { mode: 'index' },
@@ -196,12 +198,10 @@
                 })
                 .catch(error => {
                     console.error("Loading error:", error);
-                    // Update display on fetch error
                     document.getElementById('loading').textContent = `Error loading chart data: ${error.message}. Please check chart_data.json and console for details.`;
                 });
         }
     
-        // Call this function when the page loads
         window.onload = loadChartData;
     </script>
 </body>
