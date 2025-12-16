@@ -18,7 +18,32 @@
     </style>
 </head>
 <body>
+    <h2>HMM Market Regime Tracker (Last 1 Year)</h2>
+    <p>Displays the daily calculated probability of the S&P 500 being in the High-Volatility ('Panic') regime.</p>
 
+    <div id="loading" style="text-align: center; font-style: italic;">Loading data...</div>
+    
+    <div id="data-display" style="display: none;">
+        <div class="data-box">
+            <h3>Current Market Psychology (Latest Close)</h3>
+            <div id="summary">
+                <p><strong>Date:</strong> <span id="date">--</span></p>
+                <p><strong>VIX Close:</strong> <span id="vix-close" class="vix-text">--</span></p>
+                <p><strong>VIX Term Structure:</strong> <span id="spread-status">--</span></p>
+                <p><strong>HMM Panic Probability:</strong> 
+                    <span id="panic-prob" class="panic-text">--</span>
+                </p>
+                <p><strong>HMM CHECK:</strong> <span id="hmm-check">--</span></p>
+            </div>
+            <p id="error-message"></p> 
+        </div>
+        
+        <div id="chart-container">
+            <canvas id="hmmChart"></canvas>
+        </div>
+        
+    </div>
+   
     <script>
         // Register annotation plugin globally
      
