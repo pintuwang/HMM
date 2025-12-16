@@ -45,164 +45,164 @@
     </div>
     
     <script>
-        // Note: Chart.register(ChartAnnotation) is removed as it causes a ReferenceError
-        // The script loads the annotation plugin from the CDN and uses it via the plugins block.
-        
-        function loadChartData() {
-            // Use a cache-busting query parameter
-            fetch('chart_data.json?' + new Date().getTime()) 
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('data-display').style.display = 'block';
-    
-                    const lastReading = data.last_reading;
-    
-                    // --- CRASH-PROOF VARIABLE INITIALIZATION ---
-                    const panicProb = ((lastReading?.p_panic || 0) * 100).toFixed(1);
-                    const vixClose = (lastReading?.vix_close || 0).toFixed(1);
-                    const vixSpread = (lastReading?.vix_spread || 0).toFixed(2);
-    
-                    const regime = panicProb > 50 ? 'HIGH-VOLATILITY' : 'LOW-VOLATILITY';
-                    const spreadStatus = lastReading?.spread_status || 'N/A';
-                    
-                    // --- UPDATE SUMMARY BOX ---
-                    document.getElementById('date').textContent = lastReading?.date || 'N/A';
-                    document.getElementById('vix-close').textContent = vixClose;
-                    document.getElementById('panic-prob').textContent = `${panicProb}%`;
-                    document.getElementById('hmm-check').innerHTML = `The market is statistically in the **${regime}** regime. Proceed with analysis.`;
-                    document.getElementById('spread-status').textContent = `${spreadStatus} (${vixSpread})`;
-                    
-                    // --- UPDATE CHART ---
-                    const chartData = {
-                        labels: data.dates,
-                        datasets: [
-                            {
-                                label: 'Panic Probability (P_Panic)',
-                                data: data.p_panic.map(p => p * 100),
-                                yAxisID: 'y_prob',
-                                backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 2,
-                                pointRadius: 0,
-                                fill: true,
-                            },
-                            {
-                                label: 'VIX Closing Price',
-                                data: data.vix_close,
-                                yAxisID: 'y_vix',
-                                borderColor: 'rgba(75, 192, 192, 0.8)',
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                type: 'line',
-                                pointRadius: 0,
-                                tension: 0.1,
-                            },
-                            {
-                                label: 'VIX Spread (Long - Short)',
-                                data: data.vix_spread,
-                                yAxisID: 'y_spread', 
-                                borderColor: 'rgba(255, 159, 64, 1)',
-                                backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                                type: 'line',
-                                pointRadius: 0,
-                                tension: 0.1,
+      document.addEventListener('DOMContentLoaded', function() {
+    const HMM_URL = 'docs/chart_data.json'; // Ensure this matches the Python output path
+
+    fetch(HMM_URL)
+        .then(response => {
+            if (!response.ok) {
+                // If the file is not found (404), log the error but don't stop loading
+                console.error('Loading error: HTTP error! status: ' + response.status);
+                throw new Error('HTTP error! status: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data || !data.dates || data.dates.length === 0) {
+                console.error("Data is empty or malformed.");
+                return;
+            }
+
+            // --- Update Summary Box ---
+            const lastReading = data.last_reading || {};
+            const vixClose = (lastReading.vix_close || 0.0).toFixed(2);
+            const vixSpread = (lastReading.vix_spread || 0.0).toFixed(2);
+            const pPanic = (lastReading.p_panic || 0.0).toFixed(1);
+            const regime = lastReading.regime || 'UNKNOWN';
+
+            document.getElementById('market-date').textContent = lastReading.date || 'N/A';
+            document.getElementById('vix-close').textContent = vixClose;
+            document.getElementById('vix-term-structure').textContent = `${lastReading.spread_status || 'N/A'} (${vixSpread})`;
+            document.getElementById('hmm-panic-probability').textContent = `${pPanic}%`;
+            document.getElementById('hmm-check-regime').innerHTML = `The market is statistically in the **${regime}** regime. Proceed with analysis.`;
+            // --------------------------
+
+            // --- Chart Configuration ---
+
+            const ctx = document.getElementById('hmmChart').getContext('2d');
+            const hmmChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.dates,
+                    datasets: [
+                        {
+                            label: 'HMM Panic Probability (%)',
+                            data: data.p_panic,
+                            borderColor: 'rgba(54, 162, 235, 1)', // Blue line
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            yAxisID: 'y_prob',
+                            fill: true,
+                            tension: 0.2
+                        },
+                        {
+                            label: 'VIX Close',
+                            data: data.vix_close,
+                            borderColor: 'rgba(255, 99, 132, 1)', // Red line
+                            backgroundColor: 'transparent',
+                            yAxisID: 'y_vix',
+                            pointRadius: 0,
+                            borderWidth: 1.5,
+                            tension: 0.2
+                        },
+                        {
+                            label: 'VIX Spread (Contango/Backwardation)',
+                            data: data.vix_spread,
+                            borderColor: 'rgba(255, 159, 64, 1)', // Orange line (The missing one!)
+                            backgroundColor: 'transparent',
+                            yAxisID: 'y_spread',
+                            pointRadius: 0,
+                            borderWidth: 2,
+                            tension: 0.2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    // --- FINAL AXIS SCALING FIX ---
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { unit: 'month' },
+                            title: { display: true, text: 'Date' }
+                        },
+                        y_prob: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Panic Probability (%)' },
+                            min: 0,
+                            max: 100,
+                            grid: { drawOnChartArea: true }
+                        },
+                        y_vix: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'VIX Close' },
+                            grid: { drawOnChartArea: false },
+                            min: 10,
+                            max: 45,
+                            stack: 'right-stack', 
+                            stackWeight: 1 
+                        },
+                        y_spread: { 
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'VIX Spread' },
+                            min: -5, 
+                            max: 5,
+                            grid: { drawOnChartArea: false },
+                            stack: 'right-stack', 
+                            stackWeight: 0.5, // Pushes it slightly outside
+                            afterBuildTicks: (scale) => { 
+                                // Adds a small padding to separate the axis from VIX 
+                                scale.options.padding = { right: 40 }; 
                             }
-                        ]
-                    };
-    
-                    const chartConfig = {
-                        type: 'line',
-                        data: chartData,
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            interaction: { mode: 'index', intersect: false },
-                            scales: {
-                                x: {
-                                    type: 'time',
-                                    time: { unit: 'month' },
-                                    title: { display: true, text: 'Date' }
-                                },
-                                y_prob: {
-                                    type: 'linear',
-                                    display: true,
-                                    position: 'left',
-                                    title: { display: true, text: 'Panic Probability (%)' },
-                                    min: 0,
-                                    max: 100,
-                                    grid: { drawOnChartArea: true }
-                                },
-                                y_vix: {
-                                    type: 'linear',
-                                    display: true,
-                                    position: 'right',
-                                    title: { display: true, text: 'VIX Close' },
-                                    grid: { drawOnChartArea: false },
-                                    min: 10,
-                                    max: 45 
-                                },
-                                // *** CORRECTION APPLIED HERE ***
-                                y_spread: { 
-                                    type: 'linear',
-                                    display: true,
-                                    position: 'right',
-                                    title: { display: true, text: 'VIX Spread' },
-                                    min: -5, 
-                                    max: 5,
-                                    grid: { drawOnChartArea: false },
-                                    // Use the stack property to force Chart.js to dedicate space for a second axis on the right
-                                    stack: 'spread-stack' 
-                                }
-                                // ******************************
-                            },
-                            plugins: {
-                                tooltip: { mode: 'index' },
-                                legend: { position: 'top' },
-                                annotation: {
-                                    annotations: {
-                                        threshold: {
-                                            type: 'line',
-                                            yMin: 50,
-                                            yMax: 50,
-                                            borderColor: 'rgba(0, 0, 0, 0.4)',
-                                            borderWidth: 1,
-                                            borderDash: [5, 5],
-                                            label: { content: 'Regime Threshold (50%)', display: true, position: 'start' }
-                                        },
-                                        spreadZero: {
-                                            type: 'line',
-                                            yMin: 0,
-                                            yMax: 0,
-                                            yScaleID: 'y_spread',
-                                            borderColor: 'rgba(255, 159, 64, 0.7)',
-                                            borderWidth: 1,
-                                            label: { content: 'Backwardation Threshold (0)', display: true, position: 'end' }
-                                        }
-                                    }
+                        }
+                    },
+                    // --- END FINAL AXIS SCALING FIX ---
+                    plugins: {
+                        legend: { display: true },
+                        annotation: {
+                            annotations: {
+                                // Backwardation Threshold for VIX Spread
+                                backwardationThreshold: {
+                                    type: 'line',
+                                    yScaleID: 'y_spread',
+                                    yMin: 0,
+                                    yMax: 0,
+                                    borderColor: 'rgba(255, 159, 64, 0.5)',
+                                    borderWidth: 2,
+                                    borderDash: [5, 5],
                                 }
                             }
                         }
-                    };
-    
-                    const ctx = document.getElementById('hmmChart').getContext('2d');
-                    if (window.myChart) {
-                        window.myChart.destroy();
                     }
-                    window.myChart = new Chart(ctx, chartConfig);
-    
-                })
-                .catch(error => {
-                    console.error("Loading error:", error);
-                    document.getElementById('loading').textContent = `Error loading chart data: ${error.message}. Please check chart_data.json and console for details.`;
-                });
-        }
-    
-        window.onload = loadChartData;
+                }
+            });
+
+        })
+        .catch(error => {
+            console.error('An error occurred during chart initialization:', error);
+            // Fallback for the user if the chart doesn't load
+            document.getElementById('market-date').textContent = 'N/A';
+            document.getElementById('vix-close').textContent = '0.0';
+            document.getElementById('vix-term-structure').textContent = 'N/A (0.00)';
+            document.getElementById('hmm-panic-probability').textContent = '0.0%';
+            document.getElementById('hmm-check-regime').innerHTML = `Loading error: Cannot find data file at ${HMM_URL}`;
+        });
+});
+// End of the main <script> tag logic
     </script>
 </body>
 </html>
