@@ -29,9 +29,12 @@ jobs:
         run: python run_hmm.py
         # The run_hmm.py script generates the docs/chart_data.json file
 
+      # 5. Use the Auto-Commit Action for reliable pushing
       - name: Commit and push new JSON data
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           # This action handles configuration, adding, committing, and pushing for you
           file_pattern: 'docs/chart_data.json' 
-          commit_message: '🤖 Data: Automated HMM data update'
+          commit_message: '🤖 Data: Automated HMM data update' 
+          # Ensure the token has permissions via the permissions block at the job level
+          # You already have contents: write, which is necessary
