@@ -69,11 +69,20 @@ def update_historical_data():
     # Pre-processing
     sp_data['Log_Return'] = np.log(sp_data['Close'] / sp_data['Close'].shift(1))
     
-    # Merge data frames
-    df = pd.merge(sp_data[['Log_Return', 'Close']], 
-                  vix_data['Close'].rename('VIX_Close'), 
-                  left_index=True, right_index=True, how='inner').dropna()
+    # --- REVISED CODE (Solution 2) ---
 
+    # 1. Prepare VIX data: Convert Series to DataFrame and explicitly rename the column
+    vix_df = vix_data[['Close']].rename(columns={'Close': 'VIX_Close'})
+    
+    # 2. Merge S&P 500 (df) with the renamed VIX data (vix_df) on the index (Date)
+    df = pd.merge(
+        sp_data[['Log_Return', 'Close']],
+        vix_df,
+        left_index=True, 
+        right_index=True, 
+        how='inner'
+    ).dropna()
+   
     # Run HMM
     df_with_hmm = train_and_predict_hmm(df)
     
