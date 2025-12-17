@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 CHART_DATA_FILE = 'docs/chart_data.json'
 CHART_PERIOD_DAYS = 365 * 1 # Last 1 year for display
 N_COMPONENTS = 2 # 2 Regimes: Calm and Panic
-TRAINING_DAYS = 365 * 3 # Use 3 years of data for training
+TRAINING_DAYS = 365 * 10 # Updated to 10 years/Use 3 years of data for training
 
 # *** FIX: Replaced non-functional ^VXST with ^VIX3M ***
 TICKERS = ["^GSPC", "^VIX", "^VIX3M"] 
