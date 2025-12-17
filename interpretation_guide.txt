@@ -1,31 +1,44 @@
 ============================================================
 TACTICAL TRADING GUIDE: VIX9D SPREAD & HMM PANIC TRACKER
 ============================================================
+Strategy: Weekly Option Selling (Credit Spreads, Iron Condors, Puts)
 
-For Weekly Option Sellers (Credit Spreads, Iron Condors, Naked Puts)
+1. THE TRIPLE-CHECK SYSTEM (Check in this order)
+------------------------------------------------------------
+STEP 1: VIX Level (The "Yield" Check)
+- Target: 15 to 25.
+- Why: Below 15, the premium isn't worth the "tail risk." 
+       Above 25, the market is too erratic for short-term weeklies.
 
-1. THE SPREAD FORMULA (Orange Line)
-   Formula: VIX9D (9-Day) - VIX (30-Day)
-   
-   - Normal (Contango):   NEGATIVE Value (e.g., -1.5)
-     Meaning: The market expects less drama in the next week than the next month.
-     Action:  SAFE (Green Light) for weekly option selling.
-     
-   - Stressed (Backwardation): POSITIVE Value (e.g., +2.0)
-     Meaning: Immediate panic. 9-day fear is higher than 30-day fear.
-     Action:  STOP (Red Light). Do not sell weeklies. High risk of a gap down.
+STEP 2: VIX9D Spread (The "Safety" Check)
+- Target: Negative Value (Orange Line below 0).
+- Why: Contango means short-term fear is lower than long-term fear.
+       Backwardation (Positive) means a price shock is imminent.
 
-2. THE REGIME SIGNAL (Blue Line)
-   HMM Panic Probability (0% to 100%)
-   
-   - Below 30%: High confidence in "Calm" regime. Optimal for Theta decay.
-   - 30% - 70%: Transition Zone. Reduce position sizes by 50%.
-   - Above 70%: Statistical Panic. Close existing short vol or hedge.
+STEP 3: HMM Probability (The "Regime" Check)
+- Target: Below 30% (Blue Line in lower territory).
+- Why: High probability indicates a statistical shift into a "Crash Regime" 
+       where standard technical analysis often fails.
 
-3. GOLDEN RULE FOR WEEKLY OPTIONS:
-   Only sell when BOTH are true:
-   1. Orange Line is BELOW 0.
-   2. Blue Line is BELOW 30%.
+2. VIX ABSOLUTE LEVEL GUIDELINES (Red Line)
+------------------------------------------------------------
+- < 13: LOW YIELD. Stay in cash or trade very small sizes. High danger of "Vol Spike."
+- 15-22: SWEET SPOT. Optimal balance of high premium and predictable decay.
+- 23-30: HIGH ALERT. Only sell if Orange Line is diving deep into Contango.
+- > 30:  EXTREME DANGER. No unhedged weekly selling. Focus on capital preservation.
 
-If the Orange Line is spiked UP, stay in cash or buy protection.
+3. HMM REGIME PROBABILITY (Blue Line)
+------------------------------------------------------------
+- 0% - 30%:   CALM REGIME. Full tactical position sizing permitted.
+- 30% - 70%:  TRANSITION. Cut position sizes by 50%. Watch for a "Regime Flip."
+- 70% - 100%: PANIC REGIME. Close short premium. Delta-neutral or Cash only.
+
+4. THE GOLDEN RULES FOR EXECUTION
+------------------------------------------------------------
+- SELL ONLY IF: VIX > 15 AND Spread < 0 AND HMM < 30%.
+- THE EMERGENCY EXIT: If the Orange Line crosses above 0 while you have a 
+  trade open, treat it as a "Hard Stop." Buy back your shorts immediately.
+
+============================================================
+Last Updated: 2025-12-17
 ============================================================
