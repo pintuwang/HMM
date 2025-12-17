@@ -1,0 +1,31 @@
+============================================================
+TACTICAL TRADING GUIDE: VIX9D SPREAD & HMM PANIC TRACKER
+============================================================
+
+For Weekly Option Sellers (Credit Spreads, Iron Condors, Naked Puts)
+
+1. THE SPREAD FORMULA (Orange Line)
+   Formula: VIX9D (9-Day) - VIX (30-Day)
+   
+   - Normal (Contango):   NEGATIVE Value (e.g., -1.5)
+     Meaning: The market expects less drama in the next week than the next month.
+     Action:  SAFE (Green Light) for weekly option selling.
+     
+   - Stressed (Backwardation): POSITIVE Value (e.g., +2.0)
+     Meaning: Immediate panic. 9-day fear is higher than 30-day fear.
+     Action:  STOP (Red Light). Do not sell weeklies. High risk of a gap down.
+
+2. THE REGIME SIGNAL (Blue Line)
+   HMM Panic Probability (0% to 100%)
+   
+   - Below 30%: High confidence in "Calm" regime. Optimal for Theta decay.
+   - 30% - 70%: Transition Zone. Reduce position sizes by 50%.
+   - Above 70%: Statistical Panic. Close existing short vol or hedge.
+
+3. GOLDEN RULE FOR WEEKLY OPTIONS:
+   Only sell when BOTH are true:
+   1. Orange Line is BELOW 0.
+   2. Blue Line is BELOW 30%.
+
+If the Orange Line is spiked UP, stay in cash or buy protection.
+============================================================
