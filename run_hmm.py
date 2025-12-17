@@ -42,17 +42,21 @@ if __name__ == "__main__":
     latest = plot_df.iloc[-1]
     
     # FLAT STRUCTURE - Easiest for JS to read
+
+    # Ensure all values are standard Python floats for JSON compatibility
     output = {
-        "date": latest.name.strftime('%Y-%m-%d'),
+        "date": str(latest.name.strftime('%Y-%m-%d')),
         "vix_close": float(latest['^VIX']),
         "vix_spread": float(latest['spread']),
         "panic_probability": float(latest['prob']),
-        "dates": plot_df.index.strftime('%Y-%m-%d').tolist(),
-        "vix_values": plot_df['^VIX'].tolist(),
-        "spread_values": plot_df['spread'].tolist(),
-        "prob_values": plot_df['prob'].tolist()
+        "dates": [str(d) for d in plot_df.index.strftime('%Y-%m-%d')],
+        "vix_values": [float(v) for v in plot_df['^VIX']],
+        "spread_values": [float(s) for s in plot_df['spread']],
+        "prob_values": [float(p) for p in plot_df['prob']]
     }
     
+    # Write to docs/chart_data.json
     with open('docs/chart_data.json', 'w') as f:
         json.dump(output, f)
+   
     print("SUCCESS: Data written to docs/chart_data.json")
