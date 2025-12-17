@@ -67,7 +67,7 @@
                 const statusClass = isBackwardation ? "panic-high" : "panic-low";
 
                 document.getElementById('market-date').textContent = data.date;
-                document.getElementById('vix-close').textContent = data.vix_close.toFixed(2);
+                document.getElementById('vix-close').textContent = Number(data.vix_close).toFixed(2);
                 
                 const termElement = document.getElementById('vix-term-structure');
                 termElement.textContent = `${statusText} (${data.vix_spread.toFixed(2)})`;
